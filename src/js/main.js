@@ -2,13 +2,12 @@ import iziToast from "izitoast";
 import 'izitoast/dist/css/iziToast.min.css';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import SimpleLightbox from 'simplelightbox';
-
 import {API_KEY} from '../keys'
 
-let searchKeyword = "cat";
-const baseUrl = "https://pixabay.com/api/?"
-const myUrl = `${baseUrl}key=${API_KEY}&q=${searchKeyword}`
-
+const baseUrl = "https://pixabay.com/api/?";
+let searchKeyword;
+let myUrl;
+// showing error using izitoast
 function showError(){
     iziToast.settings({
         timeout: 5000,
@@ -23,7 +22,7 @@ function showError(){
     });
     iziToast.show({
         message: 'Sorry, there are no images matching your search query. Please, try again!',
-        position: 'topRight', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter
+        position: 'topRight',
         backgroundColor: "red",
         color:"white",
         theme: "none",
@@ -31,28 +30,25 @@ function showError(){
             console.info('callback abriu!');
         },
         onClosing: function(instance, toast, closedBy){
-            console.info('closedBy: ' + closedBy); // tells if it was closed by 'drag' or 'button'
+            console.info('closedBy: ' + closedBy); 
         }
     });
 }
 
-
-try {
-    const response = await fetch(myUrl);    
+// fetch and create images with response
+async function getData(url) {
+    const response = await fetch(url);    
     const myJson = await response.json();
 
     if(myJson.total === 0){
         showError();
     } 
-    
-    console.log(myJson);
-    
     const contentUL = document.querySelector(".image-content");
     const contentMarkup = myJson.hits.map(
     ({webformatURL, largeImageURL, tags, likes, views, comments, downloads}) => 
         `<li class="content-list-item">
             <a href="${largeImageURL}">
-                <img src="${webformatURL}" alt="${tags}" width="240" height="225">
+                <img src="${webformatURL}" alt="${tags}" width="240" height="200">
             </a>
             <div class="content-bottom">
                 <div class="content-bottom-inner">
@@ -70,21 +66,21 @@ try {
             </div>  
         </li>`
     ).join("");
+    
+    contentUL.innerHTML = contentMarkup;
+    const mylightbox = new SimpleLightbox('.content-list-item a', {
+        captionsData: 'alt',
+        captionDelay: 250,
+        });
+  }
 
-contentUL.innerHTML = contentMarkup;
-const mylightbox = new SimpleLightbox('.content-list-item a', {
-    captionsData: 'alt',
-    captionDelay: 250,
-    });
-
-} catch (error) {
-    console.error(error.message);
-}
-
-
-
-
-
-
-
-
+  const searchForm =  document.querySelector('.search-form')
+  const searchInput = document.querySelector('.search-input')
+  
+  searchForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      searchKeyword = searchInput.value;
+      myUrl = `${baseUrl}key=${API_KEY}&q=${searchKeyword}`
+      getData(myUrl);
+  })
+  
