@@ -34,6 +34,12 @@
   color: white;
 }
 
+.loader{
+    display:none;
+    font-size: 20px;
+    padding-left: 10px;
+}
+
 .image-content {
   list-style-type: none;
   display: flex;

@@ -3,16 +3,20 @@ import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import SimpleLightbox from 'simplelightbox';
-import { API_KEY } from './js/keys';
+//import { API_KEY } from './js/keys';
 
 const baseUrl = 'https://pixabay.com/api/?';
 let urlFinal;
+const API_KEY = "48399114-e6afb1ef5f2eaab40be0bb5b8";
 let params = {
   q: '',
   image_type: 'photo',
   orientation: 'horizontal',
   safesearch: true,
 };
+
+const contentUL = document.querySelector('.image-content');
+const loader = document.querySelector('.loader');
 
 // showing error using izitoast
 function showError() {
@@ -31,13 +35,15 @@ function showError() {
 
 // fetch and create images with response
 async function getData(url) {
+  contentUL.innerHTML = "";
+  loader.style.display ='flex';
   const response = await fetch(url);
   const jsonResponse = await response.json();
-
+  loader.style.display = 'none';
   if (jsonResponse.total === 0) {
     showError();
   }
-  const contentUL = document.querySelector('.image-content');
+  
   const contentMarkup = jsonResponse.hits
     .map(
       ({
